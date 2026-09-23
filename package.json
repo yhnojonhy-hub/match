@@ -25,6 +25,7 @@
     "react-dom": "19.2.4",
     "remotion": "^4.0.527",
     "server-only": "^0.0.1",
+    "sharp": "^0.34.5",
     "zod": "^4.6.5"
   },
   "devDependencies": {

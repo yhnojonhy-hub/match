@@ -1,5 +1,7 @@
+import { db } from "@/server/db";
 import { registerUser } from "@/server/actions";
 import { handlePost, redirectTo, text, withSession } from "@/server/http";
+import { storePhoto } from "@/server/photo";
 import { createSession } from "@/server/session";
 
 export async function POST(request: Request) {
@@ -15,9 +17,17 @@ export async function POST(request: Request) {
         gender: text(form, "gender"),
         gridCell: text(form, "gridCell"),
       });
+      const file = form.get("foto");
+      let hasPhoto = false;
+      if (file instanceof File && file.size > 0) {
+        const name = await storePhoto(new Uint8Array(await file.arrayBuffer()), file.type);
+        await db.profile.update({ where: { userId: user.id }, data: { photoName: name } });
+        hasPhoto = true;
+      }
       const token = await createSession(user.id);
-      return withSession(redirectTo(request, "/lote"), token);
+      return withSession(redirectTo(request, hasPhoto ? "/lote" : "/perfil"), token);
     },
     "/cadastrar",
+    6_500_000,
   );
 }

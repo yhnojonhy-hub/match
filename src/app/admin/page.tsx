@@ -23,7 +23,7 @@ export default async function AdminPage({
       </p>
       {data.reports.length === 0 ? <p>Nenhuma denúncia aberta.</p> : null}
       {data.reports.map((report) => (
-        <article className="card" key={report.id} style={{ marginBottom: "1rem" }}>
+        <article className="plan" key={report.id} style={{ marginBottom: "1rem" }}>
           <p>{report.reason}</p>
           <p className="meta">Mensagens guardadas: {report.messageIds || "nenhuma"}</p>
           <form action="/api/admin" method="post">

@@ -19,10 +19,15 @@ export default async function LoginPage({
           Senha
           <input name="password" type="password" required autoComplete="current-password" />
         </label>
-        <p>
-          <button type="submit">Entrar</button>
+        <p className="actions">
+          <button type="submit" className="sun">
+            Entrar
+          </button>
         </p>
       </form>
+      <p className="meta">
+        Ainda sem conta? <a href="/cadastrar">Criar conta</a>
+      </p>
     </Shell>
   );
 }

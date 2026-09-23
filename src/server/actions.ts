@@ -9,6 +9,7 @@ import { saoPauloDate } from "@/domain/sao-paulo";
 import { messageHasRiskHint } from "@/domain/scam";
 import { candidateScore, hardFilter } from "@/domain/score";
 import { HttpError } from "@/server/http";
+import { removePhoto } from "@/server/photo";
 
 const publicProfile = {
   userId: true,
@@ -19,6 +20,7 @@ const publicProfile = {
   gender: true,
   gridCell: true,
   interests: true,
+  photoName: true,
 } as const;
 
 export async function claimOnce(userId: string, scope: string, key: string) {
@@ -467,10 +469,12 @@ export async function adminHome() {
 export async function eraseAccount(userId: string) {
   await db.session.deleteMany({ where: { userId } });
   await db.message.updateMany({ where: { senderId: userId }, data: { body: "" } });
+  const profile = await db.profile.findUnique({ where: { userId }, select: { photoName: true } });
   await db.profile.updateMany({
     where: { userId },
-    data: { displayName: "Conta encerrada", bio: "", interests: "" },
+    data: { displayName: "Conta encerrada", bio: "", interests: "", photoName: "" },
   });
+  if (profile?.photoName) await removePhoto(profile.photoName);
   await db.user.update({
     where: { id: userId },
     data: {
@@ -484,7 +488,7 @@ export async function eraseAccount(userId: string) {
 export async function namesFor(ids: string[]) {
   const profiles = await db.profile.findMany({
     where: { userId: { in: ids } },
-    select: { userId: true, displayName: true },
+    select: { userId: true, displayName: true, photoName: true },
   });
-  return new Map(profiles.map((profile) => [profile.userId, profile.displayName]));
+  return new Map(profiles.map((profile) => [profile.userId, profile]));
 }

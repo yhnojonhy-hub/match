@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { ErrorNote, Shell } from "@/components/Shell";
 import { trustedContactNote } from "@/domain/starters";
@@ -23,36 +24,50 @@ export default async function DatePage({
     if (error instanceof HttpError) redirect("/conversas");
     throw error;
   }
-  const windows = await countWindows(loaded.match.id);
+  const windows = loaded.match.windows.length;
+  const otherName = loaded.other?.displayName ?? "a pessoa";
+  const back = `/encontro/${loaded.match.id}`;
 
   return (
     <Shell signedIn admin={user.role === "admin"}>
-      <h1>Encontro com {loaded.other?.displayName}</h1>
+      <p style={{ margin: 0 }}>
+        <Link href={`/conversas/${loaded.match.id}`} className="meta">
+          Voltar para a conversa
+        </Link>
+      </p>
+      <h1>Encontro com {otherName}</h1>
+      <p className="meta">O lugar fica público. Endereço de casa não entra aqui.</p>
       <ErrorNote message={erro} />
-      <p>O lugar fica público. Endereço de casa não entra aqui.</p>
       {!loaded.want.theirs ? (
         <form action="/api/encontro" method="post">
           <input type="hidden" name="matchId" value={loaded.match.id} />
-          <input type="hidden" name="voltar" value={`/encontro/${loaded.match.id}`} />
-          <p>{loaded.want.mine ? "Seu sinal já está guardado. O da outra pessoa ainda não." : "Os dois precisam marcar."}</p>
-          <button className="persimmon" type="submit" name="acao" value="quero">
-            Quero encontrar
-          </button>
+          <input type="hidden" name="voltar" value={back} />
+          <p>
+            {loaded.want.mine
+              ? `Seu sinal está guardado. Falta ${otherName} marcar também.`
+              : "Os dois precisam marcar que querem se encontrar."}
+          </p>
+          {loaded.want.mine ? null : (
+            <button className="sun" type="submit" name="acao" value="quero">
+              Quero encontrar
+            </button>
+          )}
         </form>
       ) : (
         <>
           <form action="/api/encontro" method="post">
             <input type="hidden" name="matchId" value={loaded.match.id} />
-            <input type="hidden" name="voltar" value={`/encontro/${loaded.match.id}`} />
+            <input type="hidden" name="voltar" value={back} />
             <label>
               Sua janela
+              <span className="help">Quando as duas janelas existirem, o lugar pode ser marcado.</span>
               <select name="janela" defaultValue="sábado à tarde">
                 <option>sábado à tarde</option>
                 <option>domingo de manhã</option>
                 <option>quarta depois do trabalho</option>
               </select>
             </label>
-            <p>
+            <p className="actions">
               <button type="submit" name="acao" value="janela">
                 Guardar janela
               </button>
@@ -61,47 +76,41 @@ export default async function DatePage({
           {windows >= 2 ? (
             <form action="/api/encontro" method="post">
               <input type="hidden" name="matchId" value={loaded.match.id} />
-              <input type="hidden" name="voltar" value={`/encontro/${loaded.match.id}`} />
+              <input type="hidden" name="voltar" value={back} />
               <label>
                 Lugar público
-                <input name="lugar" defaultValue={loaded.match.plan?.placeName ?? "café na região"} required />
+                <input name="lugar" defaultValue={loaded.match.plan?.placeName ?? ""} placeholder="café, praça, livraria" required />
               </label>
-              <p>
-                <button className="persimmon" type="submit" name="acao" value="lugar">
+              <p className="actions">
+                <button className="sun" type="submit" name="acao" value="lugar">
                   Marcar o lugar
                 </button>
               </p>
             </form>
-          ) : (
-            <p className="meta">Quando as duas janelas existirem, o lugar pode ser marcado.</p>
-          )}
+          ) : null}
           {loaded.match.plan ? (
-            <>
+            <section className="plan current" style={{ marginTop: "2rem" }}>
+              <h2 style={{ marginTop: 0 }}>Marcado</h2>
               <p>
-                Encontro marcado: {loaded.match.plan.placeName}. {loaded.match.plan.whenLabel}
+                {loaded.match.plan.placeName}. {loaded.match.plan.whenLabel}.
               </p>
-              <section aria-label="Avise alguém">
-                <p className="meta">Copie e mande para alguém de confiança. O Match não envia isso por você.</p>
+              <label>
+                Avise alguém de confiança
+                <span className="help">Copie e mande. O Match não envia isso por você.</span>
                 <textarea
                   readOnly
                   rows={3}
-                  aria-label="Texto para a pessoa de confiança"
                   defaultValue={trustedContactNote({
-                    otherName: loaded.other?.displayName ?? "a pessoa",
+                    otherName,
                     placeName: loaded.match.plan.placeName,
                     whenLabel: loaded.match.plan.whenLabel,
                   })}
                 />
-              </section>
-            </>
+              </label>
+            </section>
           ) : null}
         </>
       )}
     </Shell>
   );
-}
-
-async function countWindows(matchId: string) {
-  const { db } = await import("@/server/db");
-  return db.availability.count({ where: { matchId } });
 }

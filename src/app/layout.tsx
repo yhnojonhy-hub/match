@@ -1,18 +1,21 @@
 import type { Metadata } from "next";
-import { Figtree, Fraunces } from "next/font/google";
+import { Bricolage_Grotesque } from "next/font/google";
 import "./globals.css";
 
-const sans = Figtree({ subsets: ["latin"], variable: "--font-figtree" });
-const display = Fraunces({ subsets: ["latin"], variable: "--font-fraunces" });
+const bricolage = Bricolage_Grotesque({
+  subsets: ["latin"],
+  axes: ["opsz"],
+  variable: "--font-bricolage",
+});
 
 export const metadata: Metadata = {
-  title: "Match",
-  description: "Um lote diário de pessoas e um caminho até um encontro.",
+  title: "Match — o lote de hoje",
+  description: "Um grupo curto de pessoas por dia, em São Paulo, e um caminho até um encontro em lugar público.",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="pt-BR" className={`${sans.variable} ${display.variable}`}>
+    <html lang="pt-BR" className={bricolage.variable}>
       <body>{children}</body>
     </html>
   );

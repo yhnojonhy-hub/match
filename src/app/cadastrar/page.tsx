@@ -13,10 +13,15 @@ export default async function SignupPage({
       <p className="meta">
         A data de nascimento fica só para a conferência simulada de 18+. O resultado guardado é o método, a faixa e a data.
       </p>
-      <form action="/api/auth/cadastrar" method="post">
+      <form action="/api/auth/cadastrar" method="post" encType="multipart/form-data">
         <label>
           Nome
           <input name="displayName" required maxLength={80} />
+        </label>
+        <label>
+          Foto de rosto
+          <span className="help">Opcional agora. JPEG, PNG ou WebP até 6 MB. É o que aparece no lote.</span>
+          <input name="foto" type="file" accept="image/jpeg,image/png,image/webp" />
         </label>
         <label>
           E-mail
@@ -56,8 +61,10 @@ export default async function SignupPage({
             <option value="campinas:cambui">Cambui, Campinas</option>
           </select>
         </label>
-        <p>
-          <button type="submit">Criar conta</button>
+        <p className="actions">
+          <button type="submit" className="sun">
+            Criar conta
+          </button>
         </p>
       </form>
     </Shell>

@@ -10,7 +10,7 @@ export class HttpError extends Error {
   }
 }
 
-export function assertSameOrigin(request: Request) {
+export function assertSameOrigin(request: Request, maxBytes = 20_000) {
   const origin = request.headers.get("origin");
   const host = request.headers.get("x-forwarded-host") ?? request.headers.get("host");
   if (!origin || !host) {
@@ -26,7 +26,7 @@ export function assertSameOrigin(request: Request) {
     throw new HttpError(403, "Origem recusada.");
   }
   const length = Number(request.headers.get("content-length") ?? "0");
-  if (length > 20_000) {
+  if (length > maxBytes) {
     throw new HttpError(413, "Pedido grande demais.");
   }
 }
@@ -47,8 +47,8 @@ export function clearSession(response: NextResponse) {
   return response;
 }
 
-export async function readForm(request: Request) {
-  assertSameOrigin(request);
+export async function readForm(request: Request, maxBytes = 20_000) {
+  assertSameOrigin(request, maxBytes);
   return request.formData();
 }
 
@@ -66,10 +66,11 @@ export async function handlePost(
   request: Request,
   run: (form: FormData, back: string) => Promise<NextResponse | void>,
   fallback = "/",
+  maxBytes = 20_000,
 ) {
   let back = fallback;
   try {
-    const form = await readForm(request);
+    const form = await readForm(request, maxBytes);
     back = safePath(text(form, "voltar") || fallback, fallback);
     const response = await run(form, back);
     return response ?? redirectTo(request, back);

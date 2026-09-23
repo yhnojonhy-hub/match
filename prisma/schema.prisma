@@ -54,6 +54,8 @@ model Profile {
   gender      String
   gridCell    String
   interests   String
+  /// Nome do arquivo em storage/. Vazio quando não há foto.
+  photoName   String @default("")
   user        User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
