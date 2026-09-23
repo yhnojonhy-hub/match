@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { ErrorNote, Shell } from "@/components/Shell";
+import { conversationStarters } from "@/domain/starters";
 import { loadMatch } from "@/server/actions";
 import { currentUser } from "@/server/session";
 import { HttpError } from "@/server/http";
@@ -24,11 +25,26 @@ export default async function ChatPage({
     throw error;
   }
   const key = crypto.randomUUID();
+  const otherName = loaded.other?.displayName ?? "Conversa";
+  const starters =
+    loaded.match.messages.length === 0 && !loaded.match.closedAt
+      ? conversationStarters(loaded.myInterests, loaded.other?.interests ?? "", otherName)
+      : [];
 
   return (
     <Shell signedIn admin={user.role === "admin"}>
-      <h1>{loaded.other?.displayName ?? "Conversa"}</h1>
+      <h1>{otherName}</h1>
       <ErrorNote message={erro} />
+      {starters.length > 0 ? (
+        <section aria-label="Para começar">
+          <p className="meta">Para começar, se quiser:</p>
+          <ul>
+            {starters.map((line) => (
+              <li key={line}>{line}</li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
       <ul style={{ listStyle: "none", padding: 0 }}>
         {loaded.match.messages.map((message) => (
           <li key={message.id} style={{ marginBottom: "0.8rem" }}>

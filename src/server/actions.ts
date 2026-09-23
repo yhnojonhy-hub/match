@@ -299,13 +299,17 @@ export async function loadMatch(userId: string, matchId: string) {
   const otherId = match.userLow === userId ? match.userHigh : match.userLow;
   const blocked = await blockedSet(userId);
   if (blocked.has(otherId)) throw new HttpError(404, "Conversa não encontrada.");
-  const other = await db.profile.findUnique({ where: { userId: otherId }, select: publicProfile });
+  const [other, me] = await Promise.all([
+    db.profile.findUnique({ where: { userId: otherId }, select: publicProfile }),
+    db.profile.findUnique({ where: { userId }, select: { interests: true } }),
+  ]);
   const mine = match.intents.some((intent) => intent.userId === userId);
   const theirs = match.intents.some((intent) => intent.userId === otherId);
   return {
     match,
     other,
     otherId,
+    myInterests: me?.interests ?? "",
     want: { mine, theirs: mine && theirs },
   };
 }

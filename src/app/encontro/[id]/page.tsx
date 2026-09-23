@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { ErrorNote, Shell } from "@/components/Shell";
+import { trustedContactNote } from "@/domain/starters";
 import { loadMatch } from "@/server/actions";
 import { HttpError } from "@/server/http";
 import { currentUser } from "@/server/session";
@@ -75,9 +76,24 @@ export default async function DatePage({
             <p className="meta">Quando as duas janelas existirem, o lugar pode ser marcado.</p>
           )}
           {loaded.match.plan ? (
-            <p>
-              Encontro marcado: {loaded.match.plan.placeName}. {loaded.match.plan.whenLabel}
-            </p>
+            <>
+              <p>
+                Encontro marcado: {loaded.match.plan.placeName}. {loaded.match.plan.whenLabel}
+              </p>
+              <section aria-label="Avise alguém">
+                <p className="meta">Copie e mande para alguém de confiança. O Match não envia isso por você.</p>
+                <textarea
+                  readOnly
+                  rows={3}
+                  aria-label="Texto para a pessoa de confiança"
+                  defaultValue={trustedContactNote({
+                    otherName: loaded.other?.displayName ?? "a pessoa",
+                    placeName: loaded.match.plan.placeName,
+                    whenLabel: loaded.match.plan.whenLabel,
+                  })}
+                />
+              </section>
+            </>
           ) : null}
         </>
       )}

@@ -40,6 +40,8 @@ Contas do seed local: `marina@exemplo.local` e `admin@exemplo.local`, com as sen
 
 Um lote estável no dia de São Paulo, distância em faixa, sinal, conversa por HTTP, denúncia depois de encerrar, e o encontro só quando os dois marcam. Bloquear, denunciar e a faixa de distância ficam no plano gratuito.
 
+A conversa vazia abre com três puxadores tirados dos interesses em comum (`src/domain/starters.ts`); sem nota de beleza, sem probabilidade. Quando o lugar público está marcado, a tela do encontro mostra um texto pronto para copiar e mandar a alguém de confiança. O Match não envia essa mensagem: quem manda é a pessoa.
+
 Quem não participa da conversa recebe 404. O mesmo vale para mensagem e denúncia ligadas a esse match.
 
 ## Rotas
