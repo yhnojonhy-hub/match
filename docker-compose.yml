@@ -1,0 +1,20 @@
+services:
+  postgres:
+    image: postgres:18
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_SUPER_PASSWORD}
+      POSTGRES_DB: postgres
+    ports:
+      - "5433:5432"
+    volumes:
+      - match_pg:/var/lib/postgresql/data
+    networks:
+      - match_net
+
+volumes:
+  match_pg:
+
+networks:
+  match_net:
+    name: match_net

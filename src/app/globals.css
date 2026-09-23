@@ -1,0 +1,137 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-paper: #f3ede4;
+  --color-ink: #1c2430;
+  --color-persimmon: #c45c26;
+  --color-line: #d8cec2;
+  --font-sans: var(--font-figtree), "Figtree", sans-serif;
+  --font-display: var(--font-fraunces), "Fraunces", serif;
+}
+
+html {
+  background: var(--color-paper);
+  color: var(--color-ink);
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: var(--font-sans);
+  font-size: 1.05rem;
+  line-height: 1.5;
+}
+
+h1,
+h2,
+.display {
+  font-family: var(--font-display);
+  font-weight: 560;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+}
+
+a {
+  color: inherit;
+}
+
+button,
+.button {
+  font: inherit;
+  border: 1px solid var(--color-ink);
+  background: transparent;
+  color: var(--color-ink);
+  padding: 0.7rem 1rem;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+}
+
+button.persimmon,
+.button.persimmon {
+  background: var(--color-persimmon);
+  border-color: var(--color-persimmon);
+  color: #fffaf6;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--color-persimmon);
+  outline-offset: 3px;
+}
+
+input,
+select,
+textarea {
+  font: inherit;
+  width: 100%;
+  border: 0;
+  border-bottom: 1px solid var(--color-ink);
+  background: transparent;
+  color: inherit;
+  padding: 0.55rem 0;
+  border-radius: 0;
+}
+
+label {
+  display: block;
+  margin-top: 1rem;
+}
+
+.wrap {
+  width: min(720px, calc(100% - 2rem));
+  margin: 0 auto;
+  padding: 1.5rem 0 4rem;
+}
+
+nav {
+  display: flex;
+  gap: 1rem;
+  align-items: baseline;
+  flex-wrap: wrap;
+  margin-bottom: 2.5rem;
+}
+
+nav a {
+  text-decoration: none;
+}
+
+.card {
+  border: 1px solid var(--color-ink);
+  padding: 1.25rem 1.25rem 1.4rem;
+  background: #f7f2ea;
+}
+
+.meta {
+  color: #3d4654;
+}
+
+.erro {
+  border-left: 3px solid var(--color-persimmon);
+  padding-left: 0.8rem;
+}
+
+.hint {
+  background: #efe4d4;
+  padding: 0.8rem 1rem;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .arrive {
+    animation: arrive 700ms ease both;
+  }
+}
+
+@keyframes arrive {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}

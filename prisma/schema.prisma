@@ -1,0 +1,196 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id           String    @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  email        String    @unique
+  passwordHash String
+  role         String    @default("member")
+  createdAt    DateTime  @default(now())
+  deletedAt    DateTime?
+  profile      Profile?
+  preference   Preference?
+  subscription Subscription?
+  ageCheck     AgeCheck?
+  sessions     Session[]
+  likesSent    Like[]    @relation("LikeFrom")
+  likesGot     Like[]    @relation("LikeTo")
+}
+
+model Session {
+  id        String   @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  userId    String   @db.Uuid
+  tokenHash String   @unique
+  expiresAt DateTime
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model LoginLock {
+  email       String    @id
+  failures    Int       @default(0)
+  lockedUntil DateTime?
+}
+
+model AgeCheck {
+  userId    String   @id @db.Uuid
+  method    String
+  result    String
+  checkedAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Profile {
+  userId      String @id @db.Uuid
+  displayName String
+  bio         String
+  intent      String
+  age         Int
+  gender      String
+  gridCell    String
+  interests   String
+  user        User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Preference {
+  userId String @id @db.Uuid
+  minAge       Int
+  maxAge       Int
+  gender       String
+  intent       String
+  maxDistance  String @default("15")
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Subscription {
+  userId String @id @db.Uuid
+  plan   String @default("free")
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model DailyBatch {
+  id           String   @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  userId       String   @db.Uuid
+  batchDate    String
+  candidateIds String
+  createdAt    DateTime @default(now())
+
+  @@unique([userId, batchDate])
+}
+
+model Like {
+  id         String   @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  fromUserId String   @db.Uuid
+  toUserId   String   @db.Uuid
+  createdAt  DateTime @default(now())
+  fromUser   User     @relation("LikeFrom", fields: [fromUserId], references: [id], onDelete: Cascade)
+  toUser     User     @relation("LikeTo", fields: [toUserId], references: [id], onDelete: Cascade)
+
+  @@unique([fromUserId, toUserId])
+}
+
+model Pass {
+  id         String   @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  fromUserId String   @db.Uuid
+  toUserId   String   @db.Uuid
+  createdAt  DateTime @default(now())
+
+  @@unique([fromUserId, toUserId])
+}
+
+model MatchPair {
+  id        String    @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  userLow   String    @db.Uuid
+  userHigh  String    @db.Uuid
+  createdAt DateTime  @default(now())
+  closedAt  DateTime?
+  messages  Message[]
+  intents   DateIntent[]
+  windows   Availability[]
+  plan      DatePlan?
+
+  @@unique([userLow, userHigh])
+}
+
+model Message {
+  id        String    @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  matchId   String    @db.Uuid
+  senderId  String    @db.Uuid
+  body      String
+  riskHint  Boolean   @default(false)
+  createdAt DateTime  @default(now())
+  match     MatchPair @relation(fields: [matchId], references: [id], onDelete: Cascade)
+}
+
+model Block {
+  id        String   @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  blockerId String   @db.Uuid
+  blockedId String   @db.Uuid
+  createdAt DateTime @default(now())
+
+  @@unique([blockerId, blockedId])
+}
+
+model Report {
+  id         String   @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  reporterId String   @db.Uuid
+  targetId   String   @db.Uuid
+  matchId    String?  @db.Uuid
+  reason     String
+  messageIds String
+  status     String   @default("aberta")
+  createdAt  DateTime @default(now())
+}
+
+model DateIntent {
+  id      String    @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  matchId String    @db.Uuid
+  userId  String    @db.Uuid
+  match   MatchPair @relation(fields: [matchId], references: [id], onDelete: Cascade)
+
+  @@unique([matchId, userId])
+}
+
+model Availability {
+  id          String    @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  matchId     String    @db.Uuid
+  userId      String    @db.Uuid
+  windowLabel String
+  match       MatchPair @relation(fields: [matchId], references: [id], onDelete: Cascade)
+
+  @@unique([matchId, userId])
+}
+
+model DatePlan {
+  matchId   String    @id @db.Uuid
+  placeName String
+  whenLabel String
+  match     MatchPair @relation(fields: [matchId], references: [id], onDelete: Cascade)
+}
+
+model AuditEvent {
+  id         String   @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  actorId    String   @db.Uuid
+  action     String
+  targetType String
+  targetId   String
+  reason     String
+  beforeHash String
+  afterHash  String
+  createdAt  DateTime @default(now())
+}
+
+model IdempotencyKey {
+  id        String   @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  userId    String   @db.Uuid
+  scope     String
+  key       String
+  createdAt DateTime @default(now())
+
+  @@unique([userId, scope, key])
+}
